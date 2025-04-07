@@ -27,14 +27,17 @@ logging.basicConfig(
 
 # Запись времени запуска
 start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+start_time1 = time.time()
 logging.info(f"Bot started at {start_time}")
 
 # Инициализация бота
 bot = telebot.TeleBot(TOKEN)
 
+
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     bot.reply_to(message, "Привет! Напиши 'send', чтобы получить log-файл на email.")
+
 
 @bot.message_handler(func=lambda message: message.text.lower() == "send")
 def send_log_via_email(message):
@@ -57,6 +60,16 @@ def send_log_via_email(message):
     except Exception as e:
         bot.reply_to(message, "Ошибка при отправке email. См. лог.")
         logging.error(f"Ошибка при отправке email: {e}")
+
+
+@bot.message_handler(func=lambda message: message.text.lower() == "report")
+def report_time(message):
+    uptime_seconds = int(time.time() - start_time1)
+    hours, remainder = divmod(uptime_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    uptime_message = f"ужо працую {hours:02}:{minutes:02}:{seconds:02}."
+    bot.reply_to(message, uptime_message)
+
 
 if __name__ == "__main__":
     print("Бот запущен...")
